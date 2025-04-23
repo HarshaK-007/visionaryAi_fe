@@ -25,6 +25,7 @@ export default function Home(){
     const [latexExpression, setLatexExpression] = useState<Array<string>>([]);
     const [latexPosition, setLatexPosition] = useState({ x: 10, y: 200 }); 
     const [dictOfVars, setDictOfVars] = useState({}); 
+    const [isEraserActive, setIsEraserActive] = useState(false); // Eraser state
  
     useEffect(() => {
         if (reset){
@@ -197,9 +198,14 @@ export default function Home(){
         if (canvas) {
             const ctx = canvas.getContext('2d'); // Get the 2D context
             if (ctx) {
-                ctx.strokeStyle = color; // Set the drawing color
-                ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); // Draw a line to the current mouse position
-                ctx.stroke(); // Apply the stroke
+                if (isEraserActive) {
+                    // Erasing logic
+                    ctx.clearRect(e.nativeEvent.offsetX - 3, e.nativeEvent.offsetY - 3, 6, 6); // Adjust size of eraser area
+                } else{
+                    ctx.strokeStyle = color; // Set the drawing color
+                    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); // Draw a line to the current mouse position
+                    ctx.stroke(); // Apply the stroke
+                }
             }
         }
     };
@@ -207,19 +213,28 @@ export default function Home(){
     // Render method to return the UI components
     return (
         <>
-            <div className='grid grid-cols-3 gap-2'> {/* Grid layout for buttons */}
+            <div className='grid grid-cols-4 gap-0 m-1 p-0'> {/* Grid layout for buttons */}
                 <Button
                     onClick={() => { 
                         console.log('Reset button clicked'); // Log the reset action
                         setReset(true); // Trigger canvas reset
                     }}
-                    className='z-20 bg-black text-white' // Button styling
+                    className='z-20 bg-black text-white m-0 p-0' // Button styling
                     variant='default' 
                     color='black'
                 >
                     Reset {/* Button text */}
                 </Button>
-                <Group className='z-20'> {/* Grouping color swatches */}
+                <Button
+                    onClick={() => setIsEraserActive(!isEraserActive)} // Toggle eraser mode
+                    className='z-20 bg-red-500 text-white h-8 px-2 text-xs w-full'
+                    variant='default'
+                    color='red'
+                >
+                    {isEraserActive ? 'Stop Erasing' : 'Eraser'}
+                </Button>
+                
+                <Group className='z-20 flex gap-0 m-0 p-0'> {/* Grouping color swatches */}
                     {SWATCHES.map((swatchColor: string) => ( // Map over available swatches
                         <ColorSwatch 
                             key={swatchColor} // Unique key for each swatch
@@ -230,12 +245,13 @@ export default function Home(){
                 </Group>
                 <Button
                     onClick={sendData} // Call sendData on click
-                    className='z-20 bg-black text-white' // Button styling
+                    className='z-20 bg-black text-white m-0 p-0' // Button styling
                     variant='default'
                     color='black'
                 >
                     Run {/* Button text */}
                 </Button>
+                
             </div>
             <canvas 
                 ref={canvasRef} // Reference to the canvas element
