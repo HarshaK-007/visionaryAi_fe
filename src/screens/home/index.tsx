@@ -266,7 +266,7 @@ export default function Home(){
                 <Draggable
                     key={index} // Unique key for each LaTeX expression
                     defaultPosition={latexPosition} // Initial position for draggable component
-                    onStop={(e, data) => setLatexPosition({ x: data.x, y: data.y })} // Update position on drag stop
+                    onStop={(data) => setLatexPosition({ x: data.x, y: data.y })} // Update position on drag stop
                 >
                     <div className='absolute text-white'> {/* LaTeX content styling */}
                         <div className="latex-content">{latex}</div> {/* Render LaTeX as text */}
