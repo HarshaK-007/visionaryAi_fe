@@ -97,7 +97,7 @@ export default function Home(){
                 ctx.lineCap = 'round';
                 ctx.lineWidth = 3;
             }
-            const preventTouchMove = (e) => e.preventDefault();
+            const preventTouchMove = (e: TouchEvent) => e.preventDefault();
             canvas.addEventListener('touchmove', preventTouchMove, { passive: false });
 
             return () => {
