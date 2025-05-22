@@ -56,13 +56,43 @@ export default function Home(){
     }, [result]);
 
 
-    useEffect(() => {
-        const canvas = canvasRef.current; 
+    // useEffect(() => {
+    //     const canvas = canvasRef.current; 
 
-        if (canvas){
-            const ctx = canvas.getContext('2d'); 
-            if (ctx){
-                canvas.width = window.innerWidth; 
+    //     if (canvas){
+    //         const ctx = canvas.getContext('2d'); 
+    //         if (ctx){
+    //             canvas.width = window.innerWidth; 
+    //             canvas.height = window.innerHeight - canvas.offsetTop;
+    //             ctx.lineCap = 'round';
+    //             ctx.lineWidth = 3;
+    //         }
+    //     }
+
+    //     const script = document.createElement('script');
+    //     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML';
+    //     script.async = true; 
+    //     document.head.appendChild(script); 
+
+    //     script.onload = () => {
+    //         console.log('MathJax has been loaded');
+    //         window.MathJax.Hub.Config({ 
+    //             tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, 
+    //         });
+    //     };
+
+    //     return () => {
+    //         document.head.removeChild(script); 
+    //     };
+    // }, []); 
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight - canvas.offsetTop;
                 ctx.lineCap = 'round';
                 ctx.lineWidth = 3;
@@ -70,25 +100,42 @@ export default function Home(){
         }
 
         const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js';
-        script.async = true; 
-        document.head.appendChild(script); 
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML';
+        script.async = true;
 
         script.onload = () => {
             console.log('MathJax has been loaded');
-            window.MathJax.Hub.Config({ 
-                tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, 
-            });
+
+            if (window.MathJax && window.MathJax.Hub) {
+                // Use optional chaining for Register
+                window.MathJax.Hub.Register?.StartupHook('TeX Jax Ready', () => {
+                    window.MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [['$', '$'], ['\\(', '\\)']],
+                            displayMath: [['\\[', '\\]']],
+                            processEscapes: true,
+                        },
+                    });
+                });
+
+                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+            } else {
+                console.warn('MathJax or MathJax.Hub is undefined');
+            }
         };
 
+
+        document.head.appendChild(script);
+
         return () => {
-            document.head.removeChild(script); 
+            document.head.removeChild(script);
         };
-    }, []); 
+    }, []);
+
 
 
     const renderLatexToCanvas = (expression: string, answer: string) => {
-        const latex = `\\(\\LARGE{${expression} = ${answer}}\\)`;
+        const latex = `\\(\\LARGE{\\text{${expression}} = \\text{${answer}}}\\)`;
 
         setLatexExpression([...latexExpression, latex]);
 
