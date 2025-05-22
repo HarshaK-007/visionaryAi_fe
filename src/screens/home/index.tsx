@@ -97,8 +97,16 @@ export default function Home(){
                 ctx.lineCap = 'round';
                 ctx.lineWidth = 3;
             }
-        }
+            const preventTouchMove = (e) => e.preventDefault();
+            canvas.addEventListener('touchmove', preventTouchMove, { passive: false });
 
+            return () => {
+            canvas.removeEventListener('touchmove', preventTouchMove);
+            };
+        }
+    }, []);
+
+    useEffect(() => {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML';
         script.async = true;
