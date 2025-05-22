@@ -219,18 +219,32 @@ export default function Home(){
         }
     };
 
-    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        const canvas = canvasRef.current; 
+    // const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    //     const canvas = canvasRef.current; 
+    //     if (canvas) {
+    //         canvas.style.background = 'black'; 
+    //         const ctx = canvas.getContext('2d'); 
+    //         if (ctx) {
+    //             ctx.beginPath(); 
+    //             ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); 
+    //             setIsDrawing(true); 
+    //         }
+    //     }
+    // };   
+    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
         if (canvas) {
-            canvas.style.background = 'black'; 
-            const ctx = canvas.getContext('2d'); 
+            canvas.style.background = 'black';
+            const ctx = canvas.getContext('2d');
             if (ctx) {
-                ctx.beginPath(); 
-                ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); 
-                setIsDrawing(true); 
+                const x = ('touches' in e) ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX;
+                const y = ('touches' in e) ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                setIsDrawing(true);
             }
         }
-    };   
+    };
 
     // Function to stop drawing on the canvas
     const stopDrawing = () => {
@@ -238,22 +252,42 @@ export default function Home(){
     };
 
     // Function to draw on the canvas
-    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDrawing) { // If not currently drawing, exit the function
-            return;
-        }
+    // const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    //     if (!isDrawing) { // If not currently drawing, exit the function
+    //         return;
+    //     }
 
-        const canvas = canvasRef.current; // Get the canvas reference
+    //     const canvas = canvasRef.current; // Get the canvas reference
+    //     if (canvas) {
+    //         const ctx = canvas.getContext('2d'); // Get the 2D context
+    //         if (ctx) {
+    //             if (isEraserActive) {
+    //                 // Erasing logic
+    //                 ctx.clearRect(e.nativeEvent.offsetX - 3, e.nativeEvent.offsetY - 3, 6, 6); // Adjust size of eraser area
+    //             } else{
+    //                 ctx.strokeStyle = color; // Set the drawing color
+    //                 ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); // Draw a line to the current mouse position
+    //                 ctx.stroke(); // Apply the stroke
+    //             }
+    //         }
+    //     }
+    // };
+    const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+        if (!isDrawing) return;
+
+        const canvas = canvasRef.current;
         if (canvas) {
-            const ctx = canvas.getContext('2d'); // Get the 2D context
+            const ctx = canvas.getContext('2d');
             if (ctx) {
+            const x = ('touches' in e) ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX;
+            const y = ('touches' in e) ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY;
+
                 if (isEraserActive) {
-                    // Erasing logic
-                    ctx.clearRect(e.nativeEvent.offsetX - 3, e.nativeEvent.offsetY - 3, 6, 6); // Adjust size of eraser area
-                } else{
-                    ctx.strokeStyle = color; // Set the drawing color
-                    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY); // Draw a line to the current mouse position
-                    ctx.stroke(); // Apply the stroke
+                    ctx.clearRect(x - 3, y - 3, 6, 6);
+                } else {
+                    ctx.strokeStyle = color;
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
                 }
             }
         }
@@ -310,6 +344,9 @@ export default function Home(){
                 onMouseOut={stopDrawing} // Stop drawing on mouse out
                 onMouseUp={stopDrawing} // Stop drawing on mouse up
                 onMouseMove={draw} // Draw on mouse move
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
             />
             {latexExpression && latexExpression.map((latex, index) => ( // Render LaTeX expressions if available
                 <Draggable
